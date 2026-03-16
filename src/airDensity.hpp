@@ -1,11 +1,22 @@
 #pragma once
 #include <cmath>
+#include <godot_cpp/classes/ref_counted.hpp> // For RefCounted base class
+#include <godot_cpp/variant/dictionary.hpp> // For returning multiple values in a structured way
 
-class AirDensity {
+class AirDensity : public godot::RefCounted {
+	GDCLASS(AirDensity, RefCounted); // Macro to enable Godot's class system and reflection
+protected:
+	static void _bind_methods(); // Method to bind C++ methods to Godot's scripting system
+
 public:
 	// Constructor to initialize the air density calculator with starting conditions:
 	// startAltitude in meters, startTemperature in Celsius, startPressure in hecto Pascals, humidity in 0..1
+	AirDensity();
 	AirDensity(double startAltitude, double startTemperature, double startPressure, double humidity);
+
+	void setup(double startAltitude, double startTemperature, double startPressure, double humidity);
+
+	~AirDensity() = default;
 
 	double getDensity() const; // Return the current air density based on the stored conditions
 	// TODO: implementacja metody getDensity, która będzie obliczać gęstość powietrza na podstawie aktualnych warunków (altitude, temperature, pressure, humidity) bez zmiany stanu przechowywanego w obiekcie. Może to być przydatne do szybkiego obliczania gęstości dla różnych warunków bez konieczności aktualizowania stanu obiektu.

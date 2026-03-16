@@ -1,6 +1,40 @@
 #include "airDensity.hpp"
 
+void AirDensity::_bind_methods() {
+	godot::ClassDB::bind_method(godot::D_METHOD("setup", "startAltitude", "startTemperature", "startPressure", "humidity"), &AirDensity::setup);
+	godot::ClassDB::bind_method(godot::D_METHOD("update_altitude", "newAltitude"), &AirDensity::updateAltitude);
+
+	godot::ClassDB::bind_method(godot::D_METHOD("get_density"), &AirDensity::getDensity);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_altitude"), &AirDensity::getAltitude);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_temperature"), &AirDensity::getTemperature);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_pressure"), &AirDensity::getPressure);
+	godot::ClassDB::bind_method(godot::D_METHOD("get_humidity"), &AirDensity::getHumidity);
+}
+
+AirDensity::AirDensity() {
+	this->altitude = 0.0;
+	this->temperature = 0.0; // Sea level temperature in Kelvin
+	this->pressure = 0.0; // Sea level pressure in Pa
+	this->humidity = 0.0;
+	this->temperature0 = 0.0;
+	this->pressure0 = 0.0;
+	this->density = 0.0;
+}
+
 AirDensity::AirDensity(double startAltitude, double startTemperature, double startPressure, double humidity) {
+	this->altitude = startAltitude;
+	this->temperature = startTemperature + 273.15; // Convert to Kelvin
+	this->pressure = startPressure * 100; // Convert hPa to Pa
+	this->humidity = humidity;
+
+	// ISA standard conditions at sea level
+	this->temperature0 = this->temperature + (L * this->altitude);
+	this->pressure0 = this->pressure * pow((this->temperature0 / this->temperature), (g / (L * Rd)));
+
+	this->density = isa_calculateDensity(); // Initial density calculation based on provided conditions
+}
+
+void AirDensity::setup(double startAltitude, double startTemperature, double startPressure, double humidity) {
 	this->altitude = startAltitude;
 	this->temperature = startTemperature + 273.15; // Convert to Kelvin
 	this->pressure = startPressure * 100; // Convert hPa to Pa
